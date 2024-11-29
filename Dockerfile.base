@@ -3,6 +3,7 @@ FROM ubuntu:22.04
 
 # Update the system and install development tools
 RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y sudo && \
     apt-get install -y --no-install-recommends \
     build-essential \
     git \
@@ -11,6 +12,16 @@ RUN apt-get update && apt-get upgrade -y && \
     vim \
     python3
 
+# Change the root password to root
+RUN echo 'root:root' | chpasswd
+
+RUN groupadd -g 1000 dev && useradd -m -u 1000 -g dev -s /bin/bash dev_user
+RUN usermod -aG sudo dev_user
+
+# Change the password of dev user to dev to avoid conflict with sudo
+RUN echo "dev_user:dev" | chpasswd
+
+USER dev_user
 
 # Set the default command (bash shell)
 CMD ["/bin/bash"]
